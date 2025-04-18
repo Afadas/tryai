@@ -98,7 +98,6 @@ export default function Home() {
 
     setLoading(true);
     const userMessage = { role: 'user', content: input };
-    const newIndex = messages.length;
     setMessages(prev => [...prev, userMessage]);
     setInput('');
 
@@ -109,14 +108,24 @@ export default function Home() {
         body: JSON.stringify({ topic: input })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      if (!data.text) {
+        throw new Error('Invalid response format');
+      }
+
       const aiMessage = { role: 'assistant', content: data.text };
       setMessages(prev => [...prev, aiMessage]);
-      
-      // Reset fade timers for all messages after AI responds
       resetAllFadeTimers();
     } catch (error) {
       console.error('Error:', error);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      }]);
     } finally {
       setLoading(false);
       scrollToBottom();
@@ -133,15 +142,19 @@ export default function Home() {
 
     const lastMessage = messages[messages.length - 1];
     
+    if (!lastMessage || !lastMessage.content) {
+      setCurrentBackground('standby.png');
+      return;
+    }
+
     if (lastMessage.content.toLowerCase().includes('shaking')) {
       setCurrentBackground('shaking.gif');
       setHasServed(false);
     } else if (lastMessage.content.toLowerCase().includes('serving')) {
       setCurrentBackground('serf.gif');
-      // Set timer to mark serving as complete
       setTimeout(() => {
         setHasServed(true);
-      }, 3000); // Adjust this timing based on your serf.gif duration
+      }, 3000);
     } else if (lastMessage.role === 'user' && hasServed) {
       setCurrentBackground('after.png');
     }
