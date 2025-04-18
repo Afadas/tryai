@@ -167,7 +167,7 @@ export default function Home() {
               visibility[index] !== false && (
                 <div 
                   key={index} 
-                  className={`mb-4 p-3 rounded-lg transition-all duration-[10000ms] ${
+                  className={`mb-4 p-3 rounded-lg transition-all duration-[11000ms] ${
                     message.role === 'user' 
                       ? 'bg-gradient-to-t from-black to-white ml-auto max-w-[70%]' 
                       : 'bg-gradient-to-t from-white to-black mr-auto max-w-[70%]'
